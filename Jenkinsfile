@@ -1,0 +1,112 @@
+pipeline {
+    agent any
+
+    parameters {
+        choice(
+            choices: ['smoke', 'regression', 'full'],
+            description: 'Test Suite to Execute',
+            name: 'TEST_SUITE'
+        )
+        choice(
+            choices: ['chrome', 'firefox', 'edge'],
+            description: 'Browser Selection',
+            name: 'BROWSER'
+        )
+        string(
+            defaultValue: 'https://parabank.parasoft.com',
+            description: 'Environment URL',
+            name: 'BASE_URL'
+        )
+    }
+
+    options {
+        // Keep build logs for 10 builds
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        // Timeout if the build runs too long
+        timeout(time: 30, unit: 'MINUTES')
+    }
+
+    stages {
+
+        stage('Environment Preparation') {
+            steps {
+                script {
+                    echo "Preparing environment for URL: ${params.BASE_URL}"
+                    echo "Selected Test Suite: ${params.TEST_SUITE}"
+                }
+            }
+        }
+
+        stage('Test Execution') {
+            parallel {
+                stage('Chrome Tests') {
+                    when {
+                        expression { params.BROWSER == 'chrome' || params.BROWSER == 'all' }
+                    }
+                    steps {
+                        retry(2) {
+                            echo "Running ${params.TEST_SUITE} tests on Chrome"
+                            sh "npm run test -- --suite ${params.TEST_SUITE} --browser chrome"
+                        }
+                    }
+                }
+
+                stage('Firefox Tests') {
+                    when {
+                        expression { params.BROWSER == 'firefox' || params.BROWSER == 'all' }
+                    }
+                    steps {
+                        retry(2) {
+                            echo "Running ${params.TEST_SUITE} tests on Firefox"
+                            sh "npm run test -- --suite ${params.TEST_SUITE} --browser firefox"
+                        }
+                    }
+                }
+
+                stage('Edge Tests') {
+                    when {
+                        expression { params.BROWSER == 'edge' || params.BROWSER == 'all' }
+                    }
+                    steps {
+                        retry(2) {
+                            echo "Running ${params.TEST_SUITE} tests on Edge"
+                            sh "npm run test -- --suite ${params.TEST_SUITE} --browser edge"
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Report Generation') {
+            steps {
+                echo 'Generating HTML test reports...'
+                publishHTML(target: [
+                    allowMissing: false,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: 'reports',
+                    reportFiles: 'index.html',
+                    reportName: 'Test Report'
+                ])
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Pipeline completed successfully!"
+            // Optional: send Slack or email notification
+        }
+        unstable {
+            echo "Pipeline completed with warnings or partial failures."
+        }
+        failure {
+            echo "Pipeline failed! Cleaning up..."
+            // Optional: cleanup commands, e.g., remove temp data
+        }
+        always {
+            echo "Post-build actions: Archiving artifacts and logs."
+            archiveArtifacts artifacts: '**/reports/**', allowEmptyArchive: true
+        }
+    }
+}
