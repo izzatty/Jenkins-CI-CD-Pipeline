@@ -43,7 +43,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 echo "Installing dependencies and verifying Cypress..."
-                sh "npm ci"
+                sh "npm install --no-audit --progress=false"
                 sh "npx cypress verify"
             }
         }
