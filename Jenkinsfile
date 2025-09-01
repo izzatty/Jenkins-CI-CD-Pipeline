@@ -40,6 +40,14 @@ pipeline {
             }
         }
 
+        stage('Install Dependencies') {
+            steps {
+                echo "Installing dependencies and verifying Cypress..."
+                sh "npm ci"
+                sh "npx cypress verify"
+            }
+        }
+
         stage('Test Execution') {
             parallel {
                 stage('Chrome Tests') {
@@ -50,8 +58,6 @@ pipeline {
                         retry(2) {
                             echo "Running ${params.TEST_SUITE} tests on Chrome"
                             catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                                sh "npm ci"
-                                sh "npx cypress verify"
                                 sh "npx cypress run --browser chrome --spec 'cypress/e2e/${params.TEST_SUITE}/*' --reporter mochawesome --reporter-options configFile=cypress-reporter.json"
                             }
                         }
@@ -66,8 +72,6 @@ pipeline {
                         retry(2) {
                             echo "Running ${params.TEST_SUITE} tests on Firefox"
                             catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                                sh "npm ci"
-                                sh "npx cypress verify"
                                 sh "npx cypress run --browser firefox --spec 'cypress/e2e/${params.TEST_SUITE}/*' --reporter mochawesome --reporter-options configFile=cypress-reporter.json"
                             }
                         }
@@ -82,8 +86,6 @@ pipeline {
                         retry(2) {
                             echo "Running ${params.TEST_SUITE} tests on Edge"
                             catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                                sh "npm ci"
-                                sh "npx cypress verify"
                                 sh "npx cypress run --browser edge --spec 'cypress/e2e/${params.TEST_SUITE}/*' --reporter mochawesome --reporter-options configFile=cypress-reporter.json"
                             }
                         }
@@ -110,14 +112,12 @@ pipeline {
     post {
         success {
             echo "Pipeline completed successfully!"
-            // Optional: send Slack/email notifications
         }
         unstable {
             echo "Pipeline completed with warnings or partial failures."
         }
         failure {
             echo "Pipeline failed! Performing cleanup..."
-            // Add specific cleanup steps if necessary
         }
         always {
             echo "Archiving artifacts and logs..."
