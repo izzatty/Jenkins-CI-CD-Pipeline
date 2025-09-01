@@ -23,6 +23,10 @@ RUN curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > mic
     apt-get update && apt-get install -y microsoft-edge-stable && \
     rm microsoft.gpg
 
+# Install Cypress dependencies
+RUN npm install -g cypress
+RUN chmod -R 777 /usr/local/lib/node_modules/cypress
+
 # Set Jenkins user back
 USER jenkins
 
