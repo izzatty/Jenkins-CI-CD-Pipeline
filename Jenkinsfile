@@ -1,10 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            image 'cypress/included:12.17.4' // prebuilt Cypress image
-            args '-u root:root' // ensures proper permissions
-        }
-    }
+    agent any
 
     parameters {
         choice(
