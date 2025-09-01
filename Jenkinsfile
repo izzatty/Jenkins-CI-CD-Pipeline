@@ -49,6 +49,7 @@ pipeline {
             steps {
                 echo "Installing dependencies and verifying Cypress..."
                 sh "npm ci --no-audit --progress=false"
+                sh "chmod +x ./node_modules/.bin/cypress"
             }
         }
 
