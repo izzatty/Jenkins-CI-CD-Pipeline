@@ -51,7 +51,7 @@ pipeline {
                             echo "Running ${params.TEST_SUITE} tests on Chrome"
                             catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                                 sh "npm install"
-                                sh "npm run test -- --suite ${params.TEST_SUITE} --browser chrome"
+                                sh "npx cypress run --browser chrome --spec 'cypress/e2e/${params.TEST_SUITE}/*'"
                             }
                         }
                     }
@@ -66,7 +66,7 @@ pipeline {
                             echo "Running ${params.TEST_SUITE} tests on Firefox"
                             catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                                 sh "npm install"
-                                sh "npm run test -- --suite ${params.TEST_SUITE} --browser firefox"
+                                sh "npx cypress run --browser firefox --spec 'cypress/e2e/${params.TEST_SUITE}/*'"
                             }
                         }
                     }
@@ -81,7 +81,7 @@ pipeline {
                             echo "Running ${params.TEST_SUITE} tests on Edge"
                             catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                                 sh "npm install"
-                                sh "npm run test -- --suite ${params.TEST_SUITE} --browser edge"
+                                sh "npx cypress run --browser edge --spec 'cypress/e2e/${params.TEST_SUITE}/*'"
                             }
                         }
                     }
