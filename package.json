@@ -1,0 +1,16 @@
+{
+  "name": "jenkins-ci-cd-pipeline",
+  "version": "1.0.0",
+  "description": "Cypress browser tests for Jenkins CI/CD pipeline",
+  "scripts": {
+    "test": "cypress run",
+    "test:chrome": "cypress run --browser chrome",
+    "test:firefox": "cypress run --browser firefox",
+    "test:edge": "cypress run --browser edge"
+  },
+  "author": "Izzatty Suaidi",
+  "license": "MIT",
+  "devDependencies": {
+    "cypress": "^12.17.1"
+  }
+}
