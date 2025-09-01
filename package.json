@@ -6,7 +6,7 @@
     "test": "cypress run --reporter mocha-multi-reporters --reporter-options configFile=cypress-reporter.json"
   },
   "devDependencies": {
-    "cypress": "^12.17.1",
+    "cypress": "^12.17.4",
     "mocha": "^10.2.0",
     "mocha-multi-reporters": "^1.5.1",
     "mochawesome": "^7.1.3"
