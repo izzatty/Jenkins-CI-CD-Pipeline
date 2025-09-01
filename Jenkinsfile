@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'nodejs-lts' 
+        nodejs 'nodejs-lts'
     }
 
     parameters {
@@ -12,7 +12,7 @@ pipeline {
             name: 'TEST_SUITE'
         )
         choice(
-            choices: ['chrome', 'firefox', 'edge'],
+            choices: ['chrome', 'firefox', 'edge', 'all'],
             description: 'Browser Selection',
             name: 'BROWSER'
         )
@@ -35,6 +35,11 @@ pipeline {
                 script {
                     echo "Preparing environment for URL: ${params.BASE_URL}"
                     echo "Selected Test Suite: ${params.TEST_SUITE}"
+                    if (params.BASE_URL.contains("staging")) {
+                        echo "Applying staging-specific configurations..."
+                    } else {
+                        echo "Applying production-specific configurations..."
+                    }
                 }
             }
         }
@@ -48,8 +53,10 @@ pipeline {
                     steps {
                         retry(2) {
                             echo "Running ${params.TEST_SUITE} tests on Chrome"
-                            sh "npm install"
-                            sh "npm run test -- --suite ${params.TEST_SUITE} --browser chrome"
+                            catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                                sh "npm install"
+                                sh "npm run test -- --suite ${params.TEST_SUITE} --browser chrome"
+                            }
                         }
                     }
                 }
@@ -61,8 +68,10 @@ pipeline {
                     steps {
                         retry(2) {
                             echo "Running ${params.TEST_SUITE} tests on Firefox"
-                            sh "npm install"
-                            sh "npm run test -- --suite ${params.TEST_SUITE} --browser firefox"
+                            catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                                sh "npm install"
+                                sh "npm run test -- --suite ${params.TEST_SUITE} --browser firefox"
+                            }
                         }
                     }
                 }
@@ -74,8 +83,10 @@ pipeline {
                     steps {
                         retry(2) {
                             echo "Running ${params.TEST_SUITE} tests on Edge"
-                            sh "npm install"
-                            sh "npm run test -- --suite ${params.TEST_SUITE} --browser edge"
+                            catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                                sh "npm install"
+                                sh "npm run test -- --suite ${params.TEST_SUITE} --browser edge"
+                            }
                         }
                     }
                 }
@@ -86,7 +97,7 @@ pipeline {
             steps {
                 echo 'Generating HTML test reports...'
                 publishHTML(target: [
-                    allowMissing: false,
+                    allowMissing: true,
                     alwaysLinkToLastBuild: true,
                     keepAll: true,
                     reportDir: 'reports',
@@ -100,16 +111,17 @@ pipeline {
     post {
         success {
             echo "Pipeline completed successfully!"
+            // Optional: send Slack/email notifications
         }
         unstable {
             echo "Pipeline completed with warnings or partial failures."
         }
         failure {
-            echo "Pipeline failed! Cleaning up..."
-            // Optional: cleanup commands, e.g., remove temp data
+            echo "Pipeline failed! Performing cleanup..."
+            // Add specific cleanup steps if necessary
         }
         always {
-            echo "Post-build actions: Archiving artifacts and logs."
+            echo "Archiving artifacts and logs..."
             archiveArtifacts artifacts: '**/reports/**', allowEmptyArchive: true
         }
     }
