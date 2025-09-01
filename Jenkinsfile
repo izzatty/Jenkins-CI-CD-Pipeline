@@ -91,14 +91,14 @@ pipeline {
 
         stage('Report Generation') {
             steps {
-                echo 'Generating HTML test reports...'
+                echo 'Generating Cypress test reports...'
                 publishHTML(target: [
                     allowMissing: true,
                     alwaysLinkToLastBuild: true,
                     keepAll: true,
-                    reportDir: 'reports',
+                    reportDir: 'cypress/reports',
                     reportFiles: 'index.html',
-                    reportName: 'Test Report'
+                    reportName: 'Cypress Test Report'
                 ])
             }
         }
