@@ -1,16 +1,14 @@
 {
-  "name": "jenkins-ci-cd-pipeline",
+  "name": "cypress-tests",
   "version": "1.0.0",
-  "description": "Cypress browser tests for Jenkins CI/CD pipeline",
+  "description": "Automated Cypress tests for Parabank application",
   "scripts": {
-    "test": "cypress run",
-    "test:chrome": "cypress run --browser chrome",
-    "test:firefox": "cypress run --browser firefox",
-    "test:edge": "cypress run --browser edge"
+    "test": "cypress run --reporter mocha-multi-reporters --reporter-options configFile=cypress-reporter.json"
   },
-  "author": "Izzatty Suaidi",
-  "license": "MIT",
   "devDependencies": {
-    "cypress": "^12.17.1"
+    "cypress": "^12.17.1",
+    "mocha": "^10.2.0",
+    "mocha-multi-reporters": "^1.5.1",
+    "mochawesome": "^7.1.3"
   }
 }
