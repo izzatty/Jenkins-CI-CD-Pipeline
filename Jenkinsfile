@@ -1,5 +1,10 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'cypress/included:12.17.4' // prebuilt Cypress image
+            args '-u root:root' // ensures proper permissions
+        }
+    }
 
     parameters {
         choice(
@@ -43,8 +48,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 echo "Installing dependencies and verifying Cypress..."
-                sh "npm install --no-audit --progress=false"
-                sh "npx cypress verify"
+                sh "npm ci --no-audit --progress=false"
             }
         }
 
