@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    tools {
+        nodejs 'nodejs-lts' 
+    }
+
     parameters {
         choice(
             choices: ['smoke', 'regression', 'full'],
@@ -20,9 +24,7 @@ pipeline {
     }
 
     options {
-        // Keep build logs for 10 builds
         buildDiscarder(logRotator(numToKeepStr: '10'))
-        // Timeout if the build runs too long
         timeout(time: 30, unit: 'MINUTES')
     }
 
@@ -46,6 +48,7 @@ pipeline {
                     steps {
                         retry(2) {
                             echo "Running ${params.TEST_SUITE} tests on Chrome"
+                            sh "npm install"
                             sh "npm run test -- --suite ${params.TEST_SUITE} --browser chrome"
                         }
                     }
@@ -58,6 +61,7 @@ pipeline {
                     steps {
                         retry(2) {
                             echo "Running ${params.TEST_SUITE} tests on Firefox"
+                            sh "npm install"
                             sh "npm run test -- --suite ${params.TEST_SUITE} --browser firefox"
                         }
                     }
@@ -70,6 +74,7 @@ pipeline {
                     steps {
                         retry(2) {
                             echo "Running ${params.TEST_SUITE} tests on Edge"
+                            sh "npm install"
                             sh "npm run test -- --suite ${params.TEST_SUITE} --browser edge"
                         }
                     }
@@ -95,7 +100,6 @@ pipeline {
     post {
         success {
             echo "Pipeline completed successfully!"
-            // Optional: send Slack or email notification
         }
         unstable {
             echo "Pipeline completed with warnings or partial failures."
